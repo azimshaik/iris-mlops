@@ -45,3 +45,6 @@ substitutions:
 # Store the built image in Artifact Registry
 images:
 - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ml-models/iris-trainer:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

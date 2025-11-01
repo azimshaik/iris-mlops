@@ -1,0 +1,45 @@
+# --- Environment Variables ---
+# Never commit secrets!
+.env
+.env.*
+
+# --- Python ---
+# Byte-compiled / optimized / C extensions
+*.pyc
+*.pyd
+*.so
+
+# Caches
+__pycache__/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# --- Jupyter Notebook ---
+# Checkpoints
+.ipynb_checkpoints
+
+# --- OS-specific ---
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# --- IDE / Editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- MLOps / Data ---
+# Add large data files, models, or logs
+# *.csv
+# *.pkl
+# *.log
+
+.txt

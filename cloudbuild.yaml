@@ -13,17 +13,16 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ml-models/iris-trainer:latest']
 
-# 3. Install KFP to compile the pipeline
+# 3. Install KFP and compile the pipeline
 - name: 'python:3.9'
-  entrypoint: 'pip'
-  args: ['install', 'kfp', 'google-cloud-pipeline-components']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    pip install kfp google-cloud-pipeline-components &&
+    python pipeline.py
 
-# 4. Compile the pipeline (creates iris_pipeline.json)
-- name: 'python:3.9'
-  entrypoint: 'python'
-  args: ['pipeline.py']
-
-# 5. Run the Vertex AI Pipeline
+# 4. Run the Vertex AI Pipeline
 - name: 'gcr.io/google.com/cloudsdktool'
   entrypoint: 'gcloud'
   args: [

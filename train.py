@@ -41,18 +41,23 @@ y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 print(f"Model accuracy: {acc}")
 
-# --- 5. Save Model to GCS ---
-print("Saving model to GCS...")
+# --- 5. Save Model ---
+print("Saving model...")
 model_filename = 'model.joblib'
-joblib.dump(model, model_filename)
 
-# Upload to GCS
-gcs_client = storage.Client()
-bucket = gcs_client.bucket(BUCKET_NAME)
-blob = bucket.blob(f"{MODEL_DIR}{model_filename}")
-blob.upload_from_filename(model_filename)
-
-print(f"Model saved to gs://{BUCKET_NAME}/{MODEL_DIR}{model_filename}")
-
-# This GCS path is the "output" of this script
-print(f"gcs_path:gs://{BUCKET_NAME}/{MODEL_DIR}")
+# If AIP_MODEL_DIR is set, save the model to that directory.
+# This is the case when running on Vertex AI.
+if "AIP_MODEL_DIR" in os.environ:
+    output_dir = os.environ["AIP_MODEL_DIR"]
+    # Create the directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    joblib.dump(model, os.path.join(output_dir, model_filename))
+    print(f"Model saved to {output_dir}/{model_filename}")
+else:
+    # Otherwise, save to GCS (for local testing or other environments)
+    joblib.dump(model, model_filename)
+    gcs_client = storage.Client()
+    bucket = gcs_client.bucket(BUCKET_NAME)
+    blob = bucket.blob(f"{MODEL_DIR}{model_filename}")
+    blob.upload_from_filename(model_filename)
+    print(f"Model saved to gs://{BUCKET_NAME}/{MODEL_DIR}{model_filename}")

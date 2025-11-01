@@ -1,0 +1,47 @@
+# cloudbuild.yaml
+steps:
+# 1. Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '-t',
+    '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ml-models/iris-trainer:latest',
+    '.'
+  ]
+
+# 2. Push the Docker image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ml-models/iris-trainer:latest']
+
+# 3. Install KFP to compile the pipeline
+- name: 'python:3.9'
+  entrypoint: 'pip'
+  args: ['install', 'kfp', 'google-cloud-pipeline-components']
+
+# 4. Compile the pipeline (creates iris_pipeline.json)
+- name: 'python:3.9'
+  entrypoint: 'python'
+  args: ['pipeline.py']
+
+# 5. Run the Vertex AI Pipeline
+- name: 'gcr.io/google.com/cloudsdktool'
+  entrypoint: 'gcloud'
+  args: [
+    'ai',
+    'pipelines',
+    'run',
+    '--region=${_REGION}',
+    '--display-name=iris-pipeline-run-${SHORT_SHA}',
+    '--pipeline=${_PIPELINE_JSON_PATH}',
+    '--project=${PROJECT_ID}'
+  ]
+
+# --- Configuration for Cloud Build ---
+# Pass in variables to the build steps
+substitutions:
+  _REGION: 'us-central1'
+  _PIPELINE_JSON_PATH: 'iris_pipeline.json'
+
+# Store the built image in Artifact Registry
+images:
+- '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ml-models/iris-trainer:latest'

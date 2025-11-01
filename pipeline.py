@@ -8,7 +8,7 @@ from google_cloud_pipeline_components.v1.custom_job import CustomTrainingJobOp
 # --- Configuration ---
 # You must change these values
 PROJECT_ID = "nextgcp-473616"  # <-- CHANGE THIS
-BUCKET_NAME = " my-mlops-project-bucket" # <-- CHANGE THIS
+BUCKET_NAME = "my-mlops-project-bucket" # <-- CHANGE THIS
 REGION = "us-central1"
 PIPELINE_ROOT = f"gs://{BUCKET_NAME}/pipeline-root/"
 TRAINER_IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-models/iris-trainer:latest"

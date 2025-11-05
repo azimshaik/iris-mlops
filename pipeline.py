@@ -60,7 +60,7 @@ def pipeline(
 #         serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
 #     )
     
-#     # This ensures the upload runs *after* the training
+#     # This ensures the upload  runs *after* the training
 #     upload_op.after(train_op)
 
 # --- Compile the pipeline ---

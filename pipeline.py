@@ -42,7 +42,7 @@ def pipeline(
                 },
             }
         ],
-        # base_output_dir=PIPELINE_ROOT,
+        base_output_dir=PIPELINE_ROOT,
     )
 
     # --- Step 2: Upload the model to Vertex AI Model Registry ---
@@ -51,17 +51,17 @@ def pipeline(
     
     # This is a bit advanced: it parses the output log from the training job
     # to find the line that starts with "gcs_path:"
-    # model_gcs_path = train_op.outputs["gcs_output_directory"]
+    model_gcs_path = train_op.outputs["gcs_output_directory"]
 
-    # upload_op = ModelUploadOp(
-    #     project=project,
-    #     display_name=MODEL_DISPLAY_NAME,
-    #     artifact_uri=model_gcs_path,
-    #     serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
-    # )
+    upload_op = ModelUploadOp(
+        project=project,
+        display_name=MODEL_DISPLAY_NAME,
+        artifact_uri=model_gcs_path,
+        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
+    )
     
-    # # This ensures the upload runs *after* the training
-    # upload_op.after(train_op)
+    # This ensures the upload runs *after* the training
+    upload_op.after(train_op)
 
 # --- Compile the pipeline ---
 if __name__ == "__main__":
@@ -70,3 +70,13 @@ if __name__ == "__main__":
         package_path="iris_pipeline.json",
     )
     print("Pipeline compiled to iris_pipeline.json")
+    from google.cloud import aiplatform
+    aiplatform.init(project=PROJECT_ID, location=REGION)
+
+    pipeline = aiplatform.PipelineJob(
+        display_name="automl_fraudfinder_kfp_pipeline",
+        template_path=PIPELINE_YAML,
+        enable_caching=False,
+    )
+
+    pipeline.run()

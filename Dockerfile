@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir \
     joblib==1.3.2 \
     google-cloud-bigquery==3.10.0 \
     google-cloud-storage==2.10.0 \
+    google-cloud-aiplatform==1.112.0 \
     db-dtypes
 
 # Copy the training script into the container

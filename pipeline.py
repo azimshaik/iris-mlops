@@ -67,15 +67,15 @@ def pipeline(
 if __name__ == "__main__":
     Compiler().compile(
         pipeline_func=pipeline,
-        package_path="iris_pipeline.json",
+        package_path="iris_pipeline.yaml",
     )
-    print("Pipeline compiled to iris_pipeline.json")
+    print("Pipeline compiled to iris_pipeline.yaml")
     from google.cloud import aiplatform
     aiplatform.init(project=PROJECT_ID, location=REGION)
 
     pipeline = aiplatform.PipelineJob(
         display_name="automl_fraudfinder_kfp_pipeline",
-        template_path=PIPELINE_YAML,
+        template_path="iris_pipeline.yaml",
         enable_caching=False,
     )
 

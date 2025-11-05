@@ -42,7 +42,7 @@ def pipeline(
                 },
             }
         ],
-        base_output_dir=PIPELINE_ROOT,
+        # base_output_dir=PIPELINE_ROOT,
     )
 
     # --- Step 2: Upload the model to Vertex AI Model Registry ---

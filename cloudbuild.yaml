@@ -19,11 +19,11 @@ steps:
   args:
   - -c
   - |
-    pip install kfp google-cloud-pipeline-components==2.21.0 &&
+    pip install kfp google-cloud-pipeline-components &&
     python pipeline.py
 
 # 4. Run the Vertex AI Pipeline
-- name: 'gcr.io/google.com/cloudsdktool'
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:stable'
   entrypoint: 'gcloud'
   args: [
     'ai',

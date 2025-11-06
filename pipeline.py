@@ -13,7 +13,7 @@ REGION = "us-central1"
 PIPELINE_ROOT = f"gs://{BUCKET_NAME}/pipeline-root/"
 TRAINER_IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-models/iris-trainer:latest"
 MODEL_DISPLAY_NAME = "iris-classifier"
-
+PIPELINE_NAME = "uploadtoar"
 @dsl.pipeline(
     name="iris-classification-pipeline",
     description="Trains and registers an Iris classification model.",
@@ -45,24 +45,18 @@ def pipeline(
         # base_output_dir=PIPELINE_ROOT,
     )
 
-    # --- Step 2: Upload the model to Vertex AI Model Registry ---
-    # The training job logs the GCS path of the model.
-    # We retrieve that log and pass it to the ModelUploadOp.
-    
-    # This is a bit advanced: it parses the output log from the training job
-    # to find the line that starts with "gcs_path:"
-#     model_gcs_path = train_op.outputs["gcs_output_directory"]
+    importer_spec = dsl.importer(
+        artifact_uri="gs://my-mlops-project-bucket/models/iris/model.joblib",
+        artifact_class=artifact_types.UnmanagedContainerModel,
+        metadata={"containerSpec": {"imageUri": "us-central1-docker.pkg.dev/nextgcp-473616/ml-models/iris-trainer:latest}"},
+    )
+    importer_spec.after(train_op)
 
-#     upload_op = ModelUploadOp(
-#         project=project,
-#         display_name=MODEL_DISPLAY_NAME,
-#         artifact_uri=model_gcs_path,
-#         serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
-#     )
-    
-#     # This ensures the upload  runs *after* the training
-#     upload_op.after(train_op)
-
+    model_upload_task = ModelUploadOp(
+        project=PROJECT_ID,
+        display_name=f"{PIPELINE_NAME}-kfp-model-upload-job",
+        unmanaged_container_model=importer_spec.output,
+    )
 # --- Compile the pipeline ---
 if __name__ == "__main__":
     Compiler().compile(
@@ -80,3 +74,21 @@ if __name__ == "__main__":
     )
 
     pipeline.run()
+                  
+      # --- Step 2: Upload the model to Vertex AI Model Registry ---
+    # The training job logs the GCS path of the model.
+    # We retrieve that log and pass it to the ModelUploadOp.
+    
+    # This is a bit advanced: it parses the output log from the training job
+    # to find the line that starts with "gcs_path:"
+#     model_gcs_path = train_op.outputs["gcs_output_directory"]
+
+#     upload_op = ModelUploadOp(
+#         project=project,
+#         display_name=MODEL_DISPLAY_NAME,
+#         artifact_uri=model_gcs_path,
+#         serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-3:latest",
+#     )
+    
+#     # This ensures the upload  runs *after* the training
+#     upload_op.after(train_op)
